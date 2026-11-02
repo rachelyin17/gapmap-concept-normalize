@@ -68,28 +68,29 @@ Each dataset is `src/plugin/data/<dataset>/papers.json` (a list of
 `{paper_id, keywords}`) and `aliases.json` (a map from alias to canonical
 form). Every alias and canonical form is already normalized, and no cycle is
 longer than 1. They are small, because the agent applies the rules by hand in its reasoning,
-which the hosted model caps at about 2,000 tokens a reply: 12 papers and 58
-keywords overran it before the agent could submit, while 8 papers and about 40
-keywords fit.
+which the hosted model caps at about 2,000 tokens a reply. In RUSH Lab, 12
+papers with 58 keywords overran it before the agent could submit, and so did 8
+papers with 39 keywords when `strip_plurals` was true; `small`'s 40 short
+keywords fit. So `standard` and `edge-cases` hold about 25 keywords each.
 
 | Dataset | Papers | Keywords | Aliases | Contents |
 |---|---|---|---|---|
 | `small` | 8 | 40 | 7 | Simple cases for smoke tests: acronyms, plurals, one protected word (`news`) |
-| `standard` | 8 | 39 | 16 | Realistic NLP keywords on arXiv ids: a two-step chain (`nmt` → `neural machine translation` → `machine translation`), aliases reached only after singularizing (`PLMs`, `Pre-trained Language Models`) |
-| `edge-cases` | 8 | 37 | 18 | Every boundary case below, several to a paper |
+| `standard` | 8 | 24 | 12 | Realistic NLP keywords on arXiv ids: the two-step chain `nmt` → `neural machine translation` → `machine translation`, `PLMs` reaching the `plm` alias only after singularizing, and the protected `news` |
+| `edge-cases` | 8 | 23 | 11 | Every boundary case below, several to a paper |
 
 `edge-cases` packs the boundary cases into 8 papers:
 
 | Paper | Cases |
 |---|---|
-| E1 | `--` dropped; three raw variants of `large language model` collapse; `LLMs` reaches the `llm` alias only after singularizing |
+| E1 | `--` dropped; `Large-Language Model`, `large language model` and `LARGE_LANGUAGE/MODEL` collapse (N2's `-`, `_` and `/`); `LLMs` reaches the `llm` alias only after singularizing |
 | E2 | No keywords at all |
-| E3 | `!!!`, `+++` and spaces: no keyword survives |
-| E4 | Chains: `nmt` (two steps), `gpt` (three), `bert base` → protected `bert` |
-| E5 | Protected `news`, `time series`, `physics`, `bias`; `gender bias` still becomes `gender bia` |
-| E6 | `analysis`, `corpus`, `class` kept; `studies` → `study`; `ties` kept |
-| E9 | `GANs`, `VAEs` reach aliases after singularizing; 4-letter `nets` stripped, 3-letter `gas` and `lms` kept (so the `lm` alias never applies); `policies` → `policy` |
-| E10 | `Q&A`, `C++`, `speech_recognition`; an alias result ending in `s` stays final beside the stripped raw form; only the last word of `graphs neural network` is singularized |
+| E3 | `+++` only: no keyword survives |
+| E4 | Chains: `nmt` (two steps), `gpt` (three) |
+| E5 | Protected `news` and `bias`; `gender bias` still becomes `gender bia` |
+| E6 | `analysis`, `corpus`, `class` kept; `studies` → `study`; 4-letter `ties` kept |
+| E9 | `GANs` reaches the `gan` alias after singularizing; 4-letter `nets` stripped, 3-letter `gas` kept |
+| E10 | `Q&A` → `qa` → an alias; an alias result ending in `s` (`word embeddings`) stays final beside the stripped raw form; only the last word of `graphs neural network` is singularized |
 
 The ids skip E7 and E8 on purpose: in Python's string order `E10` comes before
 `E2`, so numeric order is the wrong order.

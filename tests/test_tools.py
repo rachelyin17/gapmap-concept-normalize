@@ -37,10 +37,11 @@ def test_get_aliases_gives_the_table_sorted_by_alias(tmp_path: Path) -> None:
 @pytest.mark.parametrize("dataset", list(Dataset))
 def test_every_dataset_is_small_ascii_and_valid(dataset: Dataset) -> None:
     papers, entries = datasets.load(dataset)
-    # The agent applies the rules in its reasoning, capped at about 2,000 tokens a reply: 12 papers and 58
-    # keywords overran it before submit, 8 and 40 fit.
-    assert 6 <= len(papers) <= 8
-    assert 35 <= sum(len(paper["keywords"]) for paper in papers) <= 42
+    # The agent applies the rules in its reasoning, capped at about 2,000 tokens a reply. small's 40 short
+    # keywords fit; standard at 39 overran it with strip_plurals, so standard and edge-cases hold about 25.
+    most = 40 if dataset is Dataset.SMALL else 26
+    assert len(papers) <= 8
+    assert 20 <= sum(len(paper["keywords"]) for paper in papers) <= most
     assert all(keyword.isascii() for paper in papers for keyword in paper["keywords"])
     assert any(alias == target for alias, target in entries), "each table protects at least one word"
 

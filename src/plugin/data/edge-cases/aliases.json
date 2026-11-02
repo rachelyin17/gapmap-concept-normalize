@@ -1,20 +1,13 @@
 {
-  "bert": "bert",
-  "bert base": "bert",
   "bias": "bias",
   "decoder only transformer": "decoder only model",
   "gan": "generative adversarial network",
   "generative pretrained transformer": "decoder only transformer",
   "gpt": "generative pretrained transformer",
   "llm": "large language model",
-  "lm": "language model",
-  "mt": "machine translation",
   "neural machine translation": "machine translation",
   "news": "news",
   "nmt": "neural machine translation",
-  "physics": "physics",
   "qa": "question answering",
-  "time series": "time series",
-  "vae": "variational autoencoder",
   "word vectors": "word embeddings"
 }

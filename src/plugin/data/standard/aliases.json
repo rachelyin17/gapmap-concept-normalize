@@ -1,5 +1,4 @@
 {
-  "chain of thought prompting": "chain of thought",
   "cot": "chain of thought",
   "llm": "large language model",
   "neural machine translation": "machine translation",
@@ -7,12 +6,9 @@
   "nli": "natural language inference",
   "nmt": "neural machine translation",
   "plm": "pretrained language model",
-  "pre trained language model": "pretrained language model",
   "rag": "retrieval augmented generation",
   "rlhf": "reinforcement learning from human feedback",
-  "sentiment classification": "sentiment analysis",
   "textual entailment": "natural language inference",
   "transformers": "transformer",
-  "word vectors": "word embedding",
   "word2vec": "word embedding"
 }

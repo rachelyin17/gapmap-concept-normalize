@@ -20,23 +20,23 @@ from verifier.task import ORDER
 EDGE_CASES = {
     False: {
         "E1": ["large language model", "llms"],
-        "E10": ["c", "graphs neural network", "question answering", "speech recognition", "word embeddings"],
+        "E10": ["graphs neural network", "question answering", "word embeddings"],
         "E2": [],
         "E3": [],
-        "E4": ["bert", "decoder only model", "machine translation"],
-        "E5": ["bias", "gender bias", "news", "physics", "time series"],
+        "E4": ["decoder only model", "machine translation"],
+        "E5": ["bias", "gender bias", "news"],
         "E6": ["case studies", "parallel corpus", "sentiment analysis", "ties", "word class"],
-        "E9": ["gans", "gas", "lms", "nets", "policies", "transformers", "vaes"],
+        "E9": ["gans", "gas", "nets"],
     },
     True: {
         "E1": ["large language model"],
-        "E10": ["c", "graphs neural network", "question answering", "speech recognition", "word embedding", "word embeddings"],
+        "E10": ["graphs neural network", "question answering", "word embedding", "word embeddings"],
         "E2": [],
         "E3": [],
-        "E4": ["bert", "decoder only model", "machine translation"],
-        "E5": ["bias", "gender bia", "news", "physics", "time series"],
+        "E4": ["decoder only model", "machine translation"],
+        "E5": ["bias", "gender bia", "news"],
         "E6": ["case study", "parallel corpus", "sentiment analysis", "ties", "word class"],
-        "E9": ["gas", "generative adversarial network", "lms", "net", "policy", "transformer", "variational autoencoder"],
+        "E9": ["gas", "generative adversarial network", "net"],
     },
 }
 EVERY_TASK = [(dataset, strip) for dataset in DATASETS for strip in (False, True)]
@@ -88,26 +88,26 @@ def wrong(task: dict, paper_id: str, concepts: list[str]) -> dict:
 
 
 def test_a_missed_alias_fails_concepts_exact() -> None:
-    found = wrong(task_for("edge-cases"), "E10", ["c", "graphs neural network", "qa", "speech recognition", "word embeddings"])
+    found = wrong(task_for("edge-cases"), "E10", ["graphs neural network", "qa", "word embeddings"])
     assert found["message"] == "concepts-exact: 1 of 8 papers differ from the rules: E10 misses 'question answering' and has extra 'qa'"
 
 
 def test_a_missed_alias_that_replaces_its_target_names_both_sides() -> None:
-    found = wrong(task_for("edge-cases"), "E4", ["bert base", "decoder only model", "machine translation"])
-    assert found["details"]["mismatches"] == [{"paper_id": "E4", "missing": ["bert"], "extra": ["bert base"]}]
+    found = wrong(task_for("edge-cases"), "E4", ["decoder only model", "nmt"])
+    assert found["details"]["mismatches"] == [{"paper_id": "E4", "missing": ["machine translation"], "extra": ["nmt"]}]
     found = wrong(task_for("small"), "S06", ["benchmarks", "news", "qa", "reading comprehension"])
     assert "S06 misses 'question answering' and has extra 'qa'" in found["message"]
 
 
 def test_a_chain_resolved_one_step_only_fails_concepts_exact() -> None:
-    found = wrong(task_for("edge-cases"), "E4", ["bert", "decoder only model", "machine translation", "neural machine translation"])
-    assert "E4 has extra 'neural machine translation'" in found["message"]
-    found = wrong(task_for("standard"), "1706.03762", ["encoder decoder models", "machine translation", "neural machine translation", "self attention", "transformer"])
+    found = wrong(task_for("edge-cases"), "E4", ["decoder only model", "neural machine translation"])
+    assert "E4 misses 'machine translation' and has extra 'neural machine translation'" in found["message"]
+    found = wrong(task_for("standard"), "1706.03762", ["machine translation", "neural machine translation", "self attention"])
     assert found["details"]["mismatches"][0]["extra"] == ["neural machine translation"]
 
 
 def test_a_three_step_chain_stopped_early_fails_concepts_exact() -> None:
-    found = wrong(task_for("edge-cases"), "E4", ["bert", "decoder only transformer", "machine translation"])
+    found = wrong(task_for("edge-cases"), "E4", ["decoder only transformer", "machine translation"])
     assert "E4 misses 'decoder only model' and has extra 'decoder only transformer'" in found["message"]
 
 
@@ -122,8 +122,8 @@ def test_plurals_stripped_while_the_flag_is_false_fail_concepts_exact() -> None:
 
 
 def test_a_protected_word_singularized_fails_concepts_exact() -> None:
-    found = wrong(task_for("edge-cases", True), "E5", ["bia", "gender bia", "new", "physic", "time sery"])
-    assert found["details"]["mismatches"] == [{"paper_id": "E5", "missing": ["bias", "news", "physics", "time series"], "extra": ["bia", "new", "physic", "time sery"]}]
+    found = wrong(task_for("edge-cases", True), "E5", ["bia", "gender bia", "new"])
+    assert found["details"]["mismatches"] == [{"paper_id": "E5", "missing": ["bias", "news"], "extra": ["bia", "new"]}]
 
 
 @pytest.mark.parametrize(("right", "stripped"), [("sentiment analysis", "sentiment analysi"), ("parallel corpus", "parallel corpu"), ("word class", "word clas")])
@@ -137,8 +137,6 @@ def test_a_kept_ending_wrongly_stripped_fails_concepts_exact(right: str, strippe
 def test_a_missed_ies_to_y_fails_concepts_exact() -> None:
     found = wrong(task_for("edge-cases", True), "E6", ["case studies", "parallel corpus", "sentiment analysis", "ties", "word class"])
     assert "E6 misses 'case study' and has extra 'case studies'" in found["message"]
-    found = wrong(task_for("edge-cases", True), "E9", ["gas", "generative adversarial network", "lms", "net", "policies", "transformer", "variational autoencoder"])
-    assert "E9 misses 'policy' and has extra 'policies'" in found["message"]
 
 
 def test_every_paper_wrong_scores_zero_and_names_five() -> None:
@@ -166,7 +164,7 @@ def test_a_paper_omitted_fails_papers_and_scores_zero() -> None:
 
 
 def test_a_concept_omitted_fails_concepts_exact() -> None:
-    found = wrong(task_for("standard", True), "2305.14314", ["alignment", "instruction tuning", "large language model"])
+    found = wrong(task_for("standard", True), "2305.14314", ["instruction tuning", "large language model"])
     assert "2305.14314 misses 'reinforcement learning from human feedback'" in found["message"]
 
 
@@ -295,7 +293,7 @@ def test_a_keyword_empty_after_n3_is_dropped() -> None:
     papers = {"P": ["--", "+++", "!!!", "   ", "Attention"]}
     assert oracle([{"paper_id": "P", "keywords": papers["P"]}], {}, True) == {"P": ["attention"]}
     assert concepts_of(gold(task_for("edge-cases", True)), "E1") == ["large language model"], "E1's -- is dropped"
-    assert concepts_of(gold(task_for("edge-cases")), "E3") == [], "E3's !!!, +++ and spaces are all dropped"
+    assert concepts_of(gold(task_for("edge-cases")), "E3") == [], "E3's only keyword, +++, is dropped"
 
 
 def test_papers_with_no_keywords_or_none_surviving_still_appear_empty() -> None:
@@ -314,18 +312,18 @@ def test_raw_variants_collapse_to_one_concept() -> None:
 def test_a_four_letter_s_word_is_stripped_and_a_three_letter_one_kept() -> None:
     stripped = concepts_of(gold(task_for("edge-cases", True)), "E9")
     assert "net" in stripped and "nets" not in stripped
-    assert {"gas", "lms"} <= set(stripped) and "language model" not in stripped, "lms is kept, so the lm alias never applies"
+    assert "gas" in stripped and "ga" not in stripped
 
 
 def test_ies_at_exactly_length_4_is_kept() -> None:
     concepts = concepts_of(gold(task_for("edge-cases", True)), "E6")
     assert "ties" in concepts and "tie" not in concepts and "ty" not in concepts
-    assert "case study" in concepts and "policy" in concepts_of(gold(task_for("edge-cases", True)), "E9")
+    assert "case study" in concepts
 
 
 def test_an_alias_that_matches_only_after_singularizing() -> None:
-    assert {"generative adversarial network", "variational autoencoder"} <= set(concepts_of(gold(task_for("edge-cases", True)), "E9"))
-    assert {"gans", "vaes"} <= set(concepts_of(gold(task_for("edge-cases", False)), "E9"))
+    assert "generative adversarial network" in concepts_of(gold(task_for("edge-cases", True)), "E9")
+    assert "gans" in concepts_of(gold(task_for("edge-cases", False)), "E9")
     assert concepts_of(gold(task_for("edge-cases", True)), "E1") == ["large language model"]
     assert "llms" in concepts_of(gold(task_for("edge-cases", False)), "E1")
     standard = concepts_of(gold(task_for("standard", True)), "1810.04805")

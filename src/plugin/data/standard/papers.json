@@ -1,10 +1,10 @@
 [
-  {"paper_id": "2305.14314", "keywords": ["Large Language Models", "LLMs", "Instruction Tuning", "RLHF", "Alignment"]},
-  {"paper_id": "2201.11903", "keywords": ["Chain-of-Thought Prompting", "CoT", "Reasoning", "Large Language Model", "In-Context Learning"]},
-  {"paper_id": "2005.11401", "keywords": ["Retrieval-Augmented Generation", "RAG", "Open-Domain QA", "Dense Retrieval", "Knowledge-Intensive Tasks"]},
-  {"paper_id": "1810.04805", "keywords": ["BERT", "Pre-trained Language Models", "PLMs", "Transformers", "Natural Language Understanding"]},
-  {"paper_id": "1706.03762", "keywords": ["Transformer", "Self-Attention", "NMT", "Machine Translation", "Encoder-Decoder Models"]},
-  {"paper_id": "1301.3781", "keywords": ["word2vec", "Word Vectors", "Word Embeddings", "Distributional Semantics"]},
-  {"paper_id": "1508.05326", "keywords": ["Natural Language Inference", "NLI", "Textual Entailment", "Datasets", "Corpus"]},
-  {"paper_id": "1907.11692", "keywords": ["Sentiment Analysis", "Sentiment Classification", "Social Media", "News", "Opinion Mining"]}
+  {"paper_id": "2305.14314", "keywords": ["LLMs", "Instruction Tuning", "RLHF"]},
+  {"paper_id": "2201.11903", "keywords": ["CoT", "Reasoning", "Large Language Model"]},
+  {"paper_id": "2005.11401", "keywords": ["RAG", "Dense Retrieval", "Open-Domain QA"]},
+  {"paper_id": "1810.04805", "keywords": ["BERT", "PLMs", "Transformers"]},
+  {"paper_id": "1706.03762", "keywords": ["NMT", "Self-Attention", "Machine Translation"]},
+  {"paper_id": "1301.3781", "keywords": ["word2vec", "Word Embeddings", "Distributional Semantics"]},
+  {"paper_id": "1508.05326", "keywords": ["NLI", "Textual Entailment", "Datasets"]},
+  {"paper_id": "1907.11692", "keywords": ["Sentiment Analysis", "News", "Social Media"]}
 ]
