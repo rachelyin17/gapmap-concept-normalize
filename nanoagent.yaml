@@ -1,7 +1,7 @@
 _ > nanoagent.plugin.v0001.ManifestConfig:
 id: gapmap-concept-normalize
 name: GapMap Concept Normalize
-version: 0.1.0
+version: 0.2.0
 status: ready
 spec: nanoagent.plugin/v0001
 
@@ -34,7 +34,7 @@ tasks > dict[contract.Task, nanoagent.plugin.v0001.TaskConfig]:
     reference: pin_canonical
     instructions: |-
       Task. Turn each paper's raw keyword list into a clean, deduplicated, sorted list of canonical concepts, applying the rules below by hand. No tool normalizes keywords for you.
-      Plan. Exactly three tool calls, nothing else: (1) get_papers with the task's dataset; (2) get_aliases with the task's dataset; (3) submit. Apply the rules to every keyword of every paper between (2) and (3), briefly: one short line per paper, no prose.
+      Plan. Exactly three tool calls, nothing else: (1) get_papers with the task's dataset; (2) get_aliases with the task's dataset; (3) submit. Apply the rules to every keyword of every paper between (2) and (3). Work briefly: note only keywords that change. Then call submit with the full output.
       Rules, applied to each raw keyword in this order.
       Normalization.
       N1. Lowercase the keyword (Python str.lower()). Raw keywords are ASCII only.

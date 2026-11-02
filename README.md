@@ -67,28 +67,32 @@ expressions, and the answer key must agree with it on every dataset and flag.
 Each dataset is `src/plugin/data/<dataset>/papers.json` (a list of
 `{paper_id, keywords}`) and `aliases.json` (a map from alias to canonical
 form). Every alias and canonical form is already normalized, and no cycle is
-longer than 1. They are small, because the agent applies the rules by hand.
+longer than 1. They are small, because the agent applies the rules by hand in its reasoning,
+which the hosted model caps at about 2,000 tokens a reply: 12 papers and 58
+keywords overran it before the agent could submit, while 8 papers and about 40
+keywords fit.
 
 | Dataset | Papers | Keywords | Aliases | Contents |
 |---|---|---|---|---|
 | `small` | 8 | 40 | 7 | Simple cases for smoke tests: acronyms, plurals, one protected word (`news`) |
-| `standard` | 12 | 58 | 22 | Realistic NLP keywords on arXiv ids: a two-step chain (`nmt` → `neural machine translation` → `machine translation`), aliases reached only after singularizing (`PLMs`, `Pre-trained Language Models`) |
-| `edge-cases` | 12 | 56 | 19 | Every boundary case below |
+| `standard` | 8 | 39 | 16 | Realistic NLP keywords on arXiv ids: a two-step chain (`nmt` → `neural machine translation` → `machine translation`), aliases reached only after singularizing (`PLMs`, `Pre-trained Language Models`) |
+| `edge-cases` | 8 | 37 | 18 | Every boundary case below, several to a paper |
 
-`edge-cases` holds:
+`edge-cases` packs the boundary cases into 8 papers:
 
-- keywords that become empty (`--`, `+++`, `!!!`, spaces);
-- a paper with no keywords (E2), and one where no keyword survives (E3);
-- raw variants that collapse to one concept (E1, E11);
-- 4-letter `nets` (stripped) beside 3-letter `gas`, `ads` and `lms` (kept);
-- `ties` (kept) beside `studies`, `policies` and `ontologies`;
-- `analysis`, `corpus`, `class`, `loss` and `consensus`, all kept;
-- protected `news`, `time series`, `physics`, `lens` and `bias`;
-- a three-step chain (`gpt`);
-- aliases matched only after singularizing (`LLMs`, `GANs`, `VAEs`);
-- an alias result ending in `s` that stays final (E9);
-- singularizing only the last word (`graphs neural network`, `bodies of text`);
-- paper ids whose string order differs from their numeric order.
+| Paper | Cases |
+|---|---|
+| E1 | `--` dropped; three raw variants of `large language model` collapse; `LLMs` reaches the `llm` alias only after singularizing |
+| E2 | No keywords at all |
+| E3 | `!!!`, `+++` and spaces: no keyword survives |
+| E4 | Chains: `nmt` (two steps), `gpt` (three), `bert base` → protected `bert` |
+| E5 | Protected `news`, `time series`, `physics`, `bias`; `gender bias` still becomes `gender bia` |
+| E6 | `analysis`, `corpus`, `class` kept; `studies` → `study`; `ties` kept |
+| E9 | `GANs`, `VAEs` reach aliases after singularizing; 4-letter `nets` stripped, 3-letter `gas` and `lms` kept (so the `lm` alias never applies); `policies` → `policy` |
+| E10 | `Q&A`, `C++`, `speech_recognition`; an alias result ending in `s` stays final beside the stripped raw form; only the last word of `graphs neural network` is singularized |
+
+The ids skip E7 and E8 on purpose: in Python's string order `E10` comes before
+`E2`, so numeric order is the wrong order.
 
 ## Verifier
 
@@ -104,7 +108,7 @@ check it needs failed).
 | 3 | `echo` | `dataset` and `strip_plurals` are the task's | The output says strip_plurals false: copy dataset and strip_plurals from the task |
 | 4 | `papers` | Every paper exactly once, none unknown, sorted by `paper_id` | paper E2 is missing |
 | 5 | `concepts-form` | Every list sorted and unique; every concept non-empty, `[a-z0-9 ]` only, no double, leading or trailing space | E1: concept 'gpt-4' has characters outside [a-z0-9 ]: '-' |
-| 6 | `concepts-exact` | Each paper's list equals the one recomputed from the pinned raw papers and aliases | 1 of 12 papers differ from the rules: E9 misses 'question answering' and has extra 'qa' |
+| 6 | `concepts-exact` | Each paper's list equals the one recomputed from the pinned raw papers and aliases | 1 of 8 papers differ from the rules: E10 misses 'question answering' and has extra 'qa' |
 
 How it is scored:
 
@@ -128,9 +132,9 @@ ids and ASCII keywords for `get_papers`; a sorted, normalized, acyclic table for
 - **The plural rules are heuristic.** `news` becomes `new` and `bias` becomes `bia` unless the alias table protects
   them, `robotics` becomes `robotic`, and an irregular plural (`criteria`, `indices`) is never singularized.
 - **Protection is for whole keywords.** A self-mapped `bias` protects the keyword `bias`, not the last word of
-  `gender bias`, which still becomes `gender bia` (edge-cases E12).
+  `gender bias`, which still becomes `gender bia` (edge-cases E5).
 - **Alias results are final.** An alias whose canonical form is plural (`word vectors` → `word embeddings`) skips
-  P1, so with `strip_plurals` it can sit beside the singularized raw form (`word embedding`, edge-cases E9). Curated
+  P1, so with `strip_plurals` it can sit beside the singularized raw form (`word embedding`, edge-cases E10). Curated
   tables should map to singular forms, as `standard` does.
 - **ASCII only.** Raw keywords must be ASCII; `get_papers` and the answer key refuse any other keyword.
 - **Synonym quality** depends entirely on the hand-curated alias table: nothing merges true synonyms it does not list.
