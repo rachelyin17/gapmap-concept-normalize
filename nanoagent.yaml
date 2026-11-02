@@ -1,0 +1,53 @@
+_ > nanoagent.plugin.v0001.ManifestConfig:
+id: gapmap-concept-normalize
+name: GapMap Concept Normalize
+version: 0.1.0
+status: ready
+spec: nanoagent.plugin/v0001
+
+runtime > nanoagent.plugin.v0001.RuntimeConfig:
+  type: mcp_stdio
+  command: [uv, run, --frozen, python, -m, plugin]
+
+# The datasets are bundled: no network. The tools never write, but every plugin may write its workspace.
+permissions > nanoagent.plugin.v0001.PermissionsConfig:
+  network > nanoagent.plugin.v0001.NetworkConfig:
+    hosts: []
+  filesystem > nanoagent.plugin.v0001.FilesystemConfig:
+    write: [workspace]
+
+# One entry per contract.Tool; its input and output classes are contract.TOOLS's.
+tools > dict[contract.Tool, nanoagent.plugin.v0001.ToolConfig]:
+  pin_canonical:
+    description: Pin the task's answer key, a bundled dataset's raw papers and alias table with the flag, and the canonical concepts the normalization rules give each paper; refuses an alias table with a cycle longer than 1 or an alias not in normalized form
+  get_papers:
+    description: Get a bundled dataset's papers, each with its id and its raw keyword list, exactly as extracted (no keyword is normalized)
+  get_aliases:
+    description: Get a bundled dataset's alias table, each alias (already in normalized form) with the canonical form it resolves to, sorted by alias; an alias mapped to itself marks a protected word
+
+# One entry per contract.Task; its input class is contract.TASKS's.
+tasks > dict[contract.Task, nanoagent.plugin.v0001.TaskConfig]:
+  canonicalize-concepts:
+    description: Turn every paper's raw keywords into a sorted, deduplicated list of canonical concepts, by fixed normalization rules and the dataset's alias table, so that surface variants of one concept count as one
+    runner: agent
+    tools: [get_papers, get_aliases]
+    reference: pin_canonical
+    instructions: |-
+      Task. Turn each paper's raw keyword list into a clean, deduplicated, sorted list of canonical concepts, applying the rules below by hand. No tool normalizes keywords for you.
+      Plan. Exactly three tool calls, nothing else: (1) get_papers with the task's dataset; (2) get_aliases with the task's dataset; (3) submit. Apply the rules to every keyword of every paper between (2) and (3), briefly: one short line per paper, no prose.
+      Rules, applied to each raw keyword in this order.
+      Normalization.
+      N1. Lowercase the keyword (Python str.lower()). Raw keywords are ASCII only.
+      N2. Replace each -, _ and / with a space.
+      N3. Delete every character that is not a-z, 0-9 or a space.
+      N4. Collapse runs of spaces into one and strip leading and trailing spaces.
+      N5. If the result is empty, drop the keyword. It contributes nothing.
+      Alias resolution.
+      A1. If the normalized form is a key in the alias table, replace it with its value. Repeat while the new value is also a key that maps to something different (this follows chains). A key that maps to itself stops the chain.
+      A2. If A1 changed the keyword, or the keyword is a self-mapped key, it is final. Skip P1.
+      Plural stripping (only if strip_plurals is true and A1 did not apply). This applies to the last word of the keyword only (the text after its last space, or the whole keyword when it has no space); every other word is left as it is.
+      P1. If the last word ends in ies: when its length is > 4, replace ies with y; otherwise leave it unchanged (ties stays ties). Otherwise, if it ends in ss, us or is, leave it unchanged. Otherwise, if it ends in s and has length > 3, remove the final s.
+      P2. Look the singularized form (the whole keyword, its last word singularized) up in the alias table and resolve it as in A1. If it isn't found, the singularized form is final.
+      Per paper.
+      D1. Collect the final forms, remove duplicates, and sort them in ascending order (Python's default string order).
+      Output. Submit {dataset, strip_plurals, papers}. dataset and strip_plurals are the task input's, copied unchanged. papers has one entry {paper_id, concepts} for every paper get_papers returned, none left out and none added, sorted by paper_id in ascending order (Python's default string order: E10 comes before E2). concepts is that paper's final forms, unique and sorted ascending; a paper with no surviving keywords, or no keywords at all, still appears, with concepts [].

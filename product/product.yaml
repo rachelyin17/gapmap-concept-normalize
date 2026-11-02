@@ -1,0 +1,12 @@
+_ > nanoagent.plugin.v0001.ProductConfig:
+tagline: "Turn messy paper keywords into clean canonical concepts, checked rule by rule"
+summary: "GapMap counts how often research concepts appear and co-occur, so \"LLMs\", \"Large Language Models\" and \"large-language-model\" must count as one. Pick a bundled dataset and whether plurals are stripped. The agent normalizes every raw keyword by fixed rules: case, separators and punctuation, then the dataset's alias table (following chains, sparing protected words), then an optional plural rule on the last word. It submits each paper's sorted, deduplicated concepts. The check recomputes every paper from the raw data and scores the share that match exactly."
+highlights:
+  - "Deterministic rules: every input has exactly one correct output"
+  - "Alias chains, protected words and plural edge cases (analysis, corpus, class, ties) handled by fixed rules"
+  - "Three bundled datasets: a smoke test, realistic NLP keywords, and every boundary case"
+  - "The verifier recomputes every paper from the raw keywords and names each miss and extra"
+steps:
+  - "Choose a dataset (small, standard or edge-cases) and whether plurals are stripped"
+  - "The agent reads the papers and the alias table, normalizes every keyword by hand and submits each paper's concepts"
+  - "See each paper's canonical concepts and every check of the verdict, with the papers that differ"

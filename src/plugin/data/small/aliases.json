@@ -1,0 +1,9 @@
+{
+  "cv": "computer vision",
+  "llm": "large language model",
+  "ml": "machine learning",
+  "news": "news",
+  "nlp": "natural language processing",
+  "qa": "question answering",
+  "rl": "reinforcement learning"
+}

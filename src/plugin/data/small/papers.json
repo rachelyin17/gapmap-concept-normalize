@@ -1,0 +1,10 @@
+[
+  {"paper_id": "S03", "keywords": ["LLM", "Large Language Model", "Prompting", "Text Generation", "Benchmarks"]},
+  {"paper_id": "S01", "keywords": ["NLP", "Natural Language Processing", "Machine Translation", "Evaluation", "Datasets"]},
+  {"paper_id": "S02", "keywords": ["ML", "Machine Learning", "Deep Learning", "Neural Networks", "Optimization"]},
+  {"paper_id": "S05", "keywords": ["RL", "Reinforcement Learning", "Reward Models", "Policy Gradient", "Exploration"]},
+  {"paper_id": "S04", "keywords": ["CV", "Computer Vision", "Image Classification", "Object Detection", "Datasets"]},
+  {"paper_id": "S06", "keywords": ["QA", "Question Answering", "Reading Comprehension", "News", "Benchmarks"]},
+  {"paper_id": "S08", "keywords": ["Text Classification", "Topic Models", "Clustering", "Embeddings", "Evaluation"]},
+  {"paper_id": "S07", "keywords": ["Large Language Models", "LLMs", "Summarization", "Hallucination", "Evaluation"]}
+]
